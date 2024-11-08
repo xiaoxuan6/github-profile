@@ -19,7 +19,7 @@ jobs:
       - uses: goreleaser/goreleaser-action@v4
         with:
           distribution: goreleaser
-          version: 2
+          version: latest
           args: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

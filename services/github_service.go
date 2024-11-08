@@ -25,11 +25,13 @@ func (p Profile) FullName() string {
 }
 
 type PrRepository struct {
-	Name    string
-	Url     string
-	State   string
-	Created string
-	Count   int
+	Name        string
+	Url         string
+	Description string
+	Language    string
+	State       string
+	Created     string
+	Count       int
 }
 
 func (p PrRepository) FullName() string {
@@ -46,12 +48,42 @@ func (p PrRepository) CountUrl(username string) string {
 }
 
 func GenerateProfile(username string) ([]Profile, []PrRepository) {
-	allRepository := github.FetchAllRepository(username)
-	profiles := makeProfile(allRepository)
+	var (
+		wg    sync.WaitGroup
+		items = make(chan map[string]interface{}, 2)
+	)
 
-	allIssues := github.FetchAllPrs(username)
-	issues := makeIssues(allIssues, username)
+	wg.Add(2)
+	go func(items chan map[string]interface{}) {
+		defer wg.Done()
+		allRepository := github.FetchAllRepository(username)
+		profiles := makeProfile(allRepository)
 
+		items <- map[string]interface{}{"profiles": profiles}
+	}(items)
+	go func(items chan map[string]interface{}) {
+		defer wg.Done()
+		allIssues := github.FetchAllPrs(username)
+		issues := makeIssues(allIssues, username)
+
+		items <- map[string]interface{}{"issues": issues}
+	}(items)
+
+	wg.Wait()
+	close(items)
+
+	var (
+		profiles []Profile
+		issues   []PrRepository
+	)
+	for item := range items {
+		if p, ok := item["profiles"]; ok {
+			profiles = p.([]Profile)
+		}
+		if i, ok := item["issues"]; ok {
+			issues = i.([]PrRepository)
+		}
+	}
 	return profiles, issues
 }
 
@@ -98,22 +130,43 @@ func getAllPrLinks(repositoryURL string) string {
 }
 
 func makeIssues(issues []*github2.Issue, username string) []PrRepository {
-	var prRepository []PrRepository
+	var (
+		wg           sync.WaitGroup
+		prRepository []PrRepository
+	)
+
 	for _, issue := range issues {
 		owner := strings.Split(*issue.RepositoryURL, "/")[4]
 		if strings.Compare(owner, username) == 0 {
 			continue
 		}
 
-		prRepository = append(prRepository, PrRepository{
-			Name:    *issue.RepositoryURL,
-			Url:     getAllPrLinks(*issue.RepositoryURL),
-			State:   *issue.State,
-			Created: (*issue.CreatedAt).String()[:10],
-			Count:   1,
-		})
+		issue := issue
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			var description, language string
+			link := getAllPrLinks(*issue.RepositoryURL)
+			repository, err := github.FetchRepository(link)
+			if err == nil {
+				description = Translate(repository.GetDescription())
+				language = repository.GetLanguage()
+			}
+
+			prRepository = append(prRepository, PrRepository{
+				Name:        *issue.RepositoryURL,
+				Url:         link,
+				Description: description,
+				Language:    language,
+				State:       *issue.State,
+				Created:     (*issue.CreatedAt).String()[:10],
+				Count:       1,
+			})
+		}()
 	}
 
+	wg.Wait()
 	newPrRepository := make(map[string]PrRepository)
 	for _, pr := range prRepository {
 		if _, ok := newPrRepository[pr.Name]; !ok {

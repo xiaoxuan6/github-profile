@@ -30,10 +30,10 @@
             <h1 class="display-1">
                 GitHub Profile
             </h1>
-            <p class="lead">Generate GitHub User Profile</p>
+            <p class="lead">Generate GitHub User Profile（<span style="color: red; font-size: small" >数据量过大会延长加载时间</span>）</p>
         </div>
         <hr/>
-        <form action="/generate" method="post">
+        <form action="/generate" method="post" onsubmit="return verify()">
             <div class="input-group mb-4">
                 <input
                         class="form-control form-control-lg"
@@ -61,6 +61,11 @@
             $(this).attr('target', '_blank');
         });
     })
+
+    function verify() {
+        $('.markdown-body').html("")
+        return true
+    }
 </script>
 </body>
 </html>

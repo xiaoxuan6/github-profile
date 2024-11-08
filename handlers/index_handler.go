@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -35,10 +34,15 @@ func (indexHandler) Generate(c *gin.Context) {
 
 	var profilesData [][]string
 	for k, profile := range profiles {
-		re := regexp.MustCompile(`\s+`)
-		profile.Description = re.ReplaceAllString(profile.Description, "")
-		profile.Description = strings.ReplaceAll(profile.Description, "|", "")
-		profilesData = append(profilesData, []string{strconv.Itoa(k + 1), profile.FullName(), profile.Description, profile.Create, profile.Update, profile.Language, strconv.Itoa(profile.Stars)})
+		profilesData = append(profilesData, []string{
+			strconv.Itoa(k + 1),
+			profile.FullName(),
+			profile.Description,
+			profile.Create,
+			profile.Update,
+			profile.Language,
+			strconv.Itoa(profile.Stars),
+		})
 	}
 
 	profilesHtml := fmt.Sprintf("## Created repos\n")
@@ -46,11 +50,19 @@ func (indexHandler) Generate(c *gin.Context) {
 
 	var prRepositoriesData [][]string
 	for k, p := range prRepository {
-		prRepositoriesData = append(prRepositoriesData, []string{strconv.Itoa(k + 1), p.FullName(), p.State, p.Created, p.CountUrl(userName)})
+		prRepositoriesData = append(prRepositoriesData, []string{
+			strconv.Itoa(k + 1),
+			p.FullName(),
+			p.Description,
+			p.Language,
+			p.State,
+			p.Created,
+			p.CountUrl(userName),
+		})
 	}
 
 	prRepositoriesHtml := fmt.Sprintf("## Pr repos \n")
-	prRepositoriesHtml += renderTable([]string{"ID", "Repo", "State", "Pr Date", "prCount"}, prRepositoriesData)
+	prRepositoriesHtml += renderTable([]string{"ID", "Repo", "Description", "Language", "State", "Pr Date", "prCount"}, prRepositoriesData)
 
 	html := github_flavored_markdown.Markdown([]byte(profilesHtml + prRepositoriesHtml))
 	c.HTML(http.StatusOK, "homepage.html", gin.H{

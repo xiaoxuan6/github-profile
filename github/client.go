@@ -6,6 +6,7 @@ import (
 	"github.com/gofri/go-github-ratelimit/github_ratelimit"
 	"github.com/google/go-github/v66/github"
 	"os"
+	"strings"
 )
 
 var Client *github.Client
@@ -17,6 +18,17 @@ func Init() {
 	}
 
 	Client = github.NewClient(rateLimiter).WithAuthToken(os.Getenv("GITHUB_TOKEN"))
+}
+
+// FetchRepository repository => https://github.com/xiaoxuan6/github-profile
+func FetchRepository(repository string) (*github.Repository, error) {
+	sl := strings.Split(repository, "/")
+	repos, _, err := Client.Repositories.Get(context.Background(), sl[3], sl[4])
+	if err != nil {
+		return nil, err
+	}
+
+	return repos, nil
 }
 
 func FetchAllRepository(username string) []*github.Repository {
