@@ -11,11 +11,6 @@
 #### environment
 
 ```docker
-docker run --name=github-profile -e GITHUB_TOKEN="xxx" -p 8080:8080 ghcr.io/xiaoxuan6/github-profile:latest 
+docker run --name=github-profile -e GITHUB_TOKEN="xxx" -p 8080:8080 -d ghcr.io/xiaoxuan6/github-profile:latest 
 ```
 
-#### .env file
-
-```docker
-docker run --name=github-profile -v $(pwd)/.env:/src/.env -p 8080:8080 ghcr.io/xiaoxuan6/github-profile:latest 
-```

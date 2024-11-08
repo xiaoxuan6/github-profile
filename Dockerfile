@@ -1,4 +1,4 @@
-FROM golang:1.22.5-alpine as builder
+FROM golang:1.22.5-alpine3.20 as builder
 
 WORKDIR /go/app/src
 
@@ -27,4 +27,4 @@ ENV GITHUB_TOKEN=""
 
 EXPOSE 8080
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["sh", "./entrypoint.sh"]
