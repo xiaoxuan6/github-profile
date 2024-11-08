@@ -1,0 +1,7 @@
+.github
+tmp
+.env
+.gitignore
+.goreleaser.yaml
+LICENSE
+README.md
