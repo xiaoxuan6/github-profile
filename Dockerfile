@@ -25,6 +25,6 @@ RUN cp .env.example .env && \
 
 ENV GITHUB_TOKEN=""
 
-EXPOSE 8080
+EXPOSE 11080
 
 ENTRYPOINT ["sh", "./entrypoint.sh"]

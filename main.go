@@ -16,5 +16,5 @@ func main() {
 	r.LoadHTMLGlob("templates/*.html")
 	r.Static("/static", "./static")
 	routers.RegisterRouter(r)
-	_ = r.Run()
+	_ = r.Run(":11080")
 }
