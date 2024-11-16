@@ -77,7 +77,17 @@ func renderTable(header []string, data [][]string) string {
 	table.SetHeader(header)
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
-	table.AppendBulk(data)
+	//table.AppendBulk(data)
+
+	for _, row := range data {
+		row[2] = wrapString(row[2])
+		table.Append(row)
+	}
+
 	table.Render()
 	return tableString.String()
+}
+
+func wrapString(str string) string {
+	return strings.ReplaceAll(str, " ", "")
 }
