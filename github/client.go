@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gofri/go-github-ratelimit/github_ratelimit"
 	"github.com/google/go-github/v66/github"
+	"log"
 	"os"
 	"strings"
 )
@@ -36,10 +37,16 @@ func FetchAllRepository(username string) []*github.Repository {
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
 
+	count := 0
 	var allRepository []*github.Repository
 	for {
 		allRepos, response, err := Client.Repositories.List(context.Background(), username, opt)
 		if err != nil {
+			if count == 3 {
+				break
+			}
+			count += 1
+			log.Println(fmt.Sprintf("Repository list num: %d err：%s", count, err.Error()))
 			continue
 		}
 
@@ -61,10 +68,16 @@ func FetchAllPrs(username string) []*github.Issue {
 		},
 	}
 
+	count := 0
 	var allIssue []*github.Issue
 	for {
 		allIssues, response, err := Client.Search.Issues(context.Background(), fmt.Sprintf("is:pr author:%s", username), opt)
 		if err != nil {
+			if count == 3 {
+				break
+			}
+			count += 1
+			log.Println(fmt.Sprintf("Pr repository num: %d err：%s", count, err.Error()))
 			continue
 		}
 
