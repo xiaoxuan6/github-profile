@@ -55,9 +55,9 @@ changelog:
       - '^docs:'
       - '^Merge'
       - '^test'
-    groups:
-      - title: '🚀 Features'
-        regexp: 'feat:'
-      - title: '🐛 Bug Fixes'
-        regexp: 'fix:'
-      - title: '🔨 Others'
+  groups:
+    - title: '🚀 Features'
+      regexp: 'feat:'
+    - title: '🐛 Bug Fixes'
+      regexp: 'fix:'
+    - title: '🔨 Others'
